@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 7d5f70adc18791bb385f27d9519d8521f72e38b4
+          ref: ${{ github.sha }}
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: '3.12'
@@ -29,7 +29,7 @@ jobs:
         run: |
           gh api repos/Ayanami-lppl/opzi/git/refs/tags/v0.2.0 --silent
           if ($LASTEXITCODE -ne 0) {
-            gh api repos/Ayanami-lppl/opzi/git/tags -f tag=v0.2.0 -f message="opzi v0.2.0" -f object=7d5f70adc18791bb385f27d9519d8521f72e38b4 -f type=commit --jq '.sha' | Set-Variable tagSha
+            gh api repos/Ayanami-lppl/opzi/git/tags -f tag=v0.2.0 -f message="opzi v0.2.0" -f object=${{ github.sha }} -f type=commit --jq '.sha' | Set-Variable tagSha
             if ($LASTEXITCODE -ne 0) { throw 'Tag object creation failed' }
             gh api repos/Ayanami-lppl/opzi/git/refs -f ref=refs/tags/v0.2.0 -f sha=$tagSha --silent
             if ($LASTEXITCODE -ne 0) { throw 'Tag ref creation failed' }

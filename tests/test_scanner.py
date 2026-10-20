@@ -17,7 +17,7 @@ class ScannerTests(unittest.TestCase):
 
     def test_sizes_relationships_hidden_search_and_empty(self):
         with tempfile.TemporaryDirectory() as tmp:
-            p = Path(tmp)
+            p = Path(tmp).resolve()
             (p / 'nested').mkdir()
             (p / 'empty').mkdir()
             (p / 'nested' / 'large.dat').write_bytes(b'x' * 900)
@@ -50,7 +50,7 @@ class ScannerTests(unittest.TestCase):
     def test_cancel_keeps_coherent_totals(self):
         with tempfile.TemporaryDirectory() as tmp:
             for i in range(100):
-                p = Path(tmp) / str(i)
+                p = Path(tmp).resolve() / str(i)
                 p.mkdir()
                 (p / 'a').write_bytes(b'x' * 10)
             scanner = Scanner()
@@ -64,7 +64,7 @@ class ScannerTests(unittest.TestCase):
 
     def test_symlink_is_not_followed(self):
         with tempfile.TemporaryDirectory() as tmp:
-            p = Path(tmp)
+            p = Path(tmp).resolve()
             (p / 'data').write_bytes(b'x' * 42)
             try:
                 os.symlink(p, p / 'loop', target_is_directory=True)
