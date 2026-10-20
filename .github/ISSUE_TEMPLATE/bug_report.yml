@@ -1,0 +1,33 @@
+name: 问题反馈
+description: 报告启动、扫描或界面问题
+title: '[Bug] '
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: 请先检查截图、路径和日志，删除个人信息与访问令牌。
+  - type: input
+    id: version
+    attributes:
+      label: opzi 版本
+      placeholder: 例如 0.2.0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Windows 版本与启动方式
+      placeholder: 例如 Windows 11，Release 压缩包 / 源码运行
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤、预期与实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 脱敏截图或日志
+      description: 不要上传真实扫描索引、凭据或完整个人目录。

@@ -1,0 +1,35 @@
+name: Build Windows
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*.*.*']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Build package
+        shell: pwsh
+        run: |
+          $version = '0.2.0'
+          if ($env:GITHUB_REF -like 'refs/tags/*') { $version = $env:GITHUB_REF_NAME -replace '^v', '' }
+          ./build.ps1 -Version $version
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: opzi-windows-x64
+          path: release/*.zip
+      - name: Publish versioned release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $assets = @(Get-ChildItem release/*.zip | Select-Object -ExpandProperty FullName)
+          gh release create $env:GITHUB_REF_NAME @assets --title "opzi $env:GITHUB_REF_NAME" --notes-file CHANGELOG.md

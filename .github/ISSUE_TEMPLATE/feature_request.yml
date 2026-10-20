@@ -1,0 +1,17 @@
+name: 功能建议
+description: 描述你想解决的空间分析问题
+title: '[Feature] '
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 使用场景与遇到的问题
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 希望怎样改进
+    validations:
+      required: true
