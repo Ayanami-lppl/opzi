@@ -1,0 +1,43 @@
+name: Publish initial v0.2.0
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-v0.2.0.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 7d5f70adc18791bb385f27d9519d8521f72e38b4
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12'
+      - name: Test and build
+        shell: pwsh
+        run: |
+          python -m unittest discover -s tests -v
+          if ($LASTEXITCODE -ne 0) { throw 'Scanner tests failed' }
+          ./build.ps1 -Version '0.2.0'
+      - name: Publish v0.2.0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          gh api repos/Ayanami-lppl/opzi/git/refs/tags/v0.2.0 --silent
+          if ($LASTEXITCODE -ne 0) {
+            gh api repos/Ayanami-lppl/opzi/git/tags -f tag=v0.2.0 -f message="opzi v0.2.0" -f object=7d5f70adc18791bb385f27d9519d8521f72e38b4 -f type=commit --jq '.sha' | Set-Variable tagSha
+            if ($LASTEXITCODE -ne 0) { throw 'Tag object creation failed' }
+            gh api repos/Ayanami-lppl/opzi/git/refs -f ref=refs/tags/v0.2.0 -f sha=$tagSha --silent
+            if ($LASTEXITCODE -ne 0) { throw 'Tag ref creation failed' }
+          }
+          gh release view v0.2.0 --repo Ayanami-lppl/opzi
+          if ($LASTEXITCODE -ne 0) {
+            gh release create v0.2.0 release/opzi-0.2.0-windows-x64.zip --repo Ayanami-lppl/opzi --verify-tag --title "opzi v0.2.0" --notes-file docs/RELEASE_NOTES_0.2.0.md
+          } else {
+            gh release upload v0.2.0 release/opzi-0.2.0-windows-x64.zip --repo Ayanami-lppl/opzi --clobber
+          }
+          if ($LASTEXITCODE -ne 0) { throw 'Release publishing failed' }
